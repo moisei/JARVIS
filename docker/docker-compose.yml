@@ -23,4 +23,15 @@ services:
   #   ports:
   #     - 7860:7860
 
-  # hclient:
+  hclient:
+    image: local/jarvis/web-client:1
+    build:
+      context: ../web
+      dockerfile: "${PWD}/Dockerfile-webclient-base"
+    volumes:
+      - ../app:/app
+    working_dir: /app/web
+    entrypoint: npm
+    command: [ "run",  "dev"]
+    ports:
+      - 8888:80

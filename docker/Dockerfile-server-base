@@ -11,9 +11,16 @@ WORKDIR  /app/server
 SHELL ["/bin/bash", "--login", "-c"]
 RUN conda create -y -n jarvis python=3.8 \
                 && conda activate jarvis \
-                && conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia \
-                && pip install -r requirements.txt
+                && conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
 
 RUN echo "conda activate jarvis" >> ~/.bashrc
+
+ADD ./requirements.txt ./requirements.txt
+RUN pip install -r ./requirements.txt
+
+EXPOSE 8004
+EXPOSE 8005
+
+VOLUME [ /app]
 
 ENTRYPOINT [ "/bin/bash" ]

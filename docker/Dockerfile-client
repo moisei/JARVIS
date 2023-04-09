@@ -1,7 +1,0 @@
-FROM nodejs:latest
-
-WORKDIR /app/web
-RUN npm install
-
-ENTRYPOINT ["npm"]
-CMD [ "run", "dev"]
