@@ -19,8 +19,8 @@ server/public/examples/*
 !server/public/examples/g.jpg
 
 # docker
-Dockerfile
-docker-compose.yml
+# Dockerfile
+# docker-compose.yml
 
 # for gradio
 # server/run_gradio.py

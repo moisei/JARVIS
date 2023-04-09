@@ -1,0 +1,19 @@
+FROM continuumio/miniconda3
+
+RUN apt-get update -y
+RUN apt-get install -y --no-install-recommends apt-utils
+RUN apt-get install -y curl
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+RUN apt-get install -y git git-lfs
+RUN apt-get install -y gcc g++
+
+WORKDIR  /app/server
+SHELL ["/bin/bash", "--login", "-c"]
+RUN conda create -y -n jarvis python=3.8 \
+                && conda activate jarvis \
+                && conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia \
+                && pip install -r requirements.txt
+
+RUN echo "conda activate jarvis" >> ~/.bashrc
+
+ENTRYPOINT [ "/bin/bash" ]

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    image: local/jarvis/server-base:1
+    build:
+      context: ../server
+      dockerfile: "${PWD}/Dockerfile-server-base"
+    volumes:
+      - ../app:/app
+    working_dir: /app
+    entrypoint: python
+    command: [ "awesome_chat.py",  "--config config.yaml",  "--mode",  "server"]
+    ports:
+      - 8004:8004
+      - 8005:8005
+
+  # hgpt:
+  #   image: registry.hf.space/microsoft-hugginggpt:latest
+  #   platform: linux/amd64
+  #   entrypoint: python
+  #   command: app.py
+  #   ports:
+  #     - 7860:7860
+
+  # hclient:
