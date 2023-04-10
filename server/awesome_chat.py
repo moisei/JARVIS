@@ -54,6 +54,7 @@ if log_file:
     filehandler.setLevel(logging.DEBUG)
     filehandler.setFormatter(formatter)
     logger.addHandler(filehandler)
+logger.info("Logging to file: %s" % log_file)
 
 LLM = config["model"]
 use_completion = config["use_completion"]
@@ -75,9 +76,10 @@ else:
     api_name = "chat/completions"
 
 if not config["dev"]:
-    if not config["openai"]["key"].startswith("sk-") and not config["openai"]["key"]=="gradio":
+    OPENAI_KEY = os.environ.get("OPENAI_KEY")
+    if not OPENAI_KEY.startswith("sk-") and not OPENAI_KEY=="gradio":
         raise ValueError("Incrorrect OpenAI key. Please check your config.yaml file.")
-    OPENAI_KEY = config["openai"]["key"]
+    OPENAI_KEY = OPENAI_KEY
     endpoint = f"https://api.openai.com/v1/{api_name}"
 else:
     endpoint = f"{config['local']['endpoint']}/v1/{api_name}"
@@ -101,7 +103,6 @@ if inference_mode!="huggingface":
             raise ValueError(message)
     except:
         raise ValueError(message)
-
 
 parse_task_demos_or_presteps = open(config["demos_or_presteps"]["parse_task"], "r").read()
 choose_model_demos_or_presteps = open(config["demos_or_presteps"]["choose_model"], "r").read()
@@ -127,9 +128,10 @@ for model in MODELS:
     METADATAS[model["id"]] = model
 
 HUGGINGFACE_HEADERS = {}
-if config["huggingface"]["token"] and config["huggingface"]["token"].startswith("hf_"):
+HUGGINGFACE_TOKEN = os.environ.get("HUGGINGFACE_TOKEN")
+if HUGGINGFACE_TOKEN and HUGGINGFACE_TOKEN.startswith("hf_"):
     HUGGINGFACE_HEADERS = {
-        "Authorization": f"Bearer {config['huggingface']['token']}",
+        "Authorization": f"Bearer {HUGGINGFACE_TOKEN}",
     }
 else:
     raise ValueError("Incrorrect HuggingFace token. Please check your config.yaml file.")
@@ -350,7 +352,7 @@ def response_results(input, results, openaikey=None):
 
 def huggingface_model_inference(model_id, data, task):
     task_url = f"https://api-inference.huggingface.co/models/{model_id}" # InferenceApi does not yet support some tasks
-    inference = InferenceApi(repo_id=model_id, token=config["huggingface"]["token"])
+    inference = InferenceApi(repo_id=model_id, token=HUGGINGFACE_TOKEN)
     
     # NLP tasks
     if task == "question-answering":
@@ -960,17 +962,18 @@ def cli():
 
 
 def server():
-    handler.setLevel(logging.CRITICAL)
+    # handler.setLevel(logging.CRITICAL)
     http_listen = config["http_listen"]
     host = http_listen["host"]
     port = http_listen["port"]
-
+    logger.debug(f"launching flask on host: {host}, port: {port}")
     app = flask.Flask(__name__, static_folder="public", static_url_path="/")
-    app.config['DEBUG'] = False
+    app.config['DEBUG'] = True
     CORS(app)
 
     @app.route('/tasks', methods=['POST'])
     def tasks():
+        logger.debug("tasks")
         data = request.get_json()
         messages = data["messages"]
         openaikey = data.get("openaikey", OPENAI_KEY)
@@ -979,6 +982,7 @@ def server():
 
     @app.route('/results', methods=['POST'])
     def results():
+        logger.debug("results")
         data = request.get_json()
         messages = data["messages"]
         openaikey = data.get("openaikey", OPENAI_KEY)
@@ -987,11 +991,13 @@ def server():
 
     @app.route('/hugginggpt', methods=['POST'])
     def chat():
+        logger.debug("chat")
         data = request.get_json()
         messages = data["messages"]
         openaikey = data.get("openaikey", OPENAI_KEY)
         response = chat_huggingface(messages, openaikey)
         return jsonify(response)
+    logger.debug(f"launched flask on host: {host}, port: {port}")
     waitress.serve(app, host=host, port=port)
 
 if __name__ == "__main__":

@@ -18,6 +18,9 @@ RUN echo "conda activate jarvis" >> ~/.bashrc
 ADD ./requirements.txt ./requirements.txt
 RUN pip install -r ./requirements.txt
 
+# @todo move up to the rest of the apt commands
+RUN apt-get install -y libgl1-mesa-glx
+
 EXPOSE 8004
 EXPOSE 8005
 

@@ -6,7 +6,7 @@ const model = "gpt-3.5-turbo";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 export async function hugginggpt(messageList: CleanChatMessage[], apiKey: string, dev: boolean) {
-  var endpoint = "http://localhost:8004/hugginggpt"
+  var endpoint = "http://server:8004/hugginggpt"
   try {
     const response = await axios({
       url: endpoint,
