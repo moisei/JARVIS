@@ -3,6 +3,9 @@ version: '3.8'
 services:
   server:
     image: local/jarvis/server-base:1
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     stop_grace_period: 1s
     build:
       context: ../server
@@ -19,6 +22,7 @@ services:
       - 8004:8004
       - 8005:8005
 
+
   # hgpt:
   #   image: registry.hf.space/microsoft-hugginggpt:latest
   #   platform: linux/amd64
@@ -29,6 +33,9 @@ services:
 
   webclient:
     image: local/jarvis/web-client:1
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     stop_grace_period: 1s
     build:
       context: ../web
